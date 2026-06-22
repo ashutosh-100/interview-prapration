@@ -1,7 +1,4 @@
-// const BASE_URL = "http://127.0.0.1:8000";
-// export const request = ...
-const BASE_URL = "https://interview-prapration-k1bn.vercel.app/api/v1";
-
+const API_BASE_URL = "https://diyablo-interview_model.hf.space";
 
 interface FetchOptions {
   method?: string;
@@ -10,13 +7,19 @@ interface FetchOptions {
   token?: string | null;
 }
 
-async function request(endpoint: string, { method = "GET", body, headers = {}, token }: FetchOptions = {}) {
-  const url = `${BASE_URL}${endpoint}`;
-  
+async function request(
+  endpoint: string,
+  { method = "GET", body, headers = {}, token }: FetchOptions = {}
+) {
+  const url = `${API_BASE_URL}${endpoint}`;
+
   const defaultHeaders: Record<string, string> = {
-    "Content-Type": "application/json",
     ...headers,
   };
+
+  if (!(body instanceof FormData)) {
+    defaultHeaders["Content-Type"] = "application/json";
+  }
 
   if (token) {
     defaultHeaders["Authorization"] = `Bearer ${token}`;
@@ -29,25 +32,27 @@ async function request(endpoint: string, { method = "GET", body, headers = {}, t
 
   if (body && !(body instanceof FormData)) {
     config.body = JSON.stringify(body);
-  } else if (body && body instanceof FormData) {
-    // browser will set multipart form data header with boundary automatically
-    delete defaultHeaders["Content-Type"];
+  } else if (body instanceof FormData) {
     config.body = body;
   }
-console.log("API URL:", url);
-console.log("CONFIG:", config);
+
+  console.log("API URL:", url);
+  console.log("CONFIG:", config);
+
   try {
     const res = await fetch(url, config);
+
     if (!res.ok) {
-  const errorData = await res.json().catch(() => ({}));
+      const errorData = await res.json().catch(() => ({}));
 
-  console.log("========== API ERROR ==========");
-  console.log("Status:", res.status);
-  console.log("Response:", errorData);
-  console.log("===============================");
+      console.log("========== API ERROR ==========");
+      console.log("Status:", res.status);
+      console.log("Response:", errorData);
+      console.log("===============================");
 
-  throw new Error(JSON.stringify(errorData, null, 2));
-}
+      throw new Error(JSON.stringify(errorData, null, 2));
+    }
+
     return await res.json();
   } catch (error: any) {
     console.error(`API Error on ${method} ${endpoint}:`, error);
@@ -56,33 +61,33 @@ console.log("CONFIG:", config);
 }
 
 export const api = {
-  // Auth API
   async login(formData: URLSearchParams) {
-    const res = await fetch(`${BASE_URL}/auth/login`, {
+    const res = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: formData.toString()
+      body: formData.toString(),
     });
+
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.detail || "Login failed");
     }
+
     return res.json();
   },
 
- async signup(data: any) {
-  return request("/auth/signup", {
-    method: "POST",
-    body: {
-      email: data.email,
-      password: data.password
-    }
-  });
-},
+  async signup(data: any) {
+    return request("/auth/signup", {
+      method: "POST",
+      body: {
+        email: data.email,
+        password: data.password,
+      },
+    });
+  },
 
-  // Resumes API
   async uploadResume(formData: FormData, token: string) {
     return request("/resumes/upload", { method: "POST", body: formData, token });
   },
@@ -91,7 +96,6 @@ export const api = {
     return request("/resumes/latest", { token });
   },
 
-  // Interviews API
   async startInterview(data: any, token: string) {
     return request("/interviews/", { method: "POST", body: data, token });
   },
@@ -114,7 +118,7 @@ export const api = {
     if (qKey) params.push(`coding_q_key=${qKey}`);
     if (lang) params.push(`coding_lang=${lang}`);
     if (params.length) url += `?${params.join("&")}`;
-    
+
     return request(url, { method: "POST", body: data, token });
   },
 
@@ -122,12 +126,10 @@ export const api = {
     return request(`/interviews/${id}/finish`, { method: "POST", token });
   },
 
-  // Recording API
   async uploadRecording(id: string, formData: FormData, token: string) {
     return request(`/recordings/${id}/upload`, { method: "POST", body: formData, token });
   },
 
-  // Admin API
   async getAdminMetrics(token: string) {
     return request("/admin/metrics", { token });
   },
@@ -138,5 +140,5 @@ export const api = {
 
   async getAdminInterviews(token: string) {
     return request("/admin/interviews", { token });
-  }
+  },
 };
