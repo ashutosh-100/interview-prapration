@@ -158,7 +158,11 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 # STATIC FILES
 # -------------------------
 uploads_absolute_path = os.path.abspath(settings.UPLOAD_DIR)
-os.makedirs(uploads_absolute_path, exist_ok=True)
+try:
+    os.makedirs(uploads_absolute_path, exist_ok=True)
+except OSError:
+    uploads_absolute_path = "/tmp/uploads"
+    os.makedirs(uploads_absolute_path, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=uploads_absolute_path), name="uploads")
 
 # -------------------------

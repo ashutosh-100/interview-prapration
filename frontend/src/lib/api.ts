@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://diyablo-interview_model.hf.space";
+const API_BASE_URL = "https://diyablo-interview_model.hf.space/api/v1";
 
 interface FetchOptions {
   method?: string;
@@ -85,6 +85,18 @@ export const api = {
         email: data.email,
         password: data.password,
       },
+    });
+  },
+
+  async getProfile(token: string) {
+    return request("/auth/profile", { token });
+  },
+
+  async updateProfile(profileData: any, token: string) {
+    return request("/auth/profile", {
+      method: "PUT",
+      body: profileData,
+      token,
     });
   },
 

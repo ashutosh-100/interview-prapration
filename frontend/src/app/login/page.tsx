@@ -91,20 +91,8 @@ export default function Login() {
         theme: "system"
       };
 
-      // Let's call backend directly to update profile
-      const profileUpdateRes = await fetch(
-  "https://interview-prapration-k1bn.vercel.app/api/v1/auth/profile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${tokenRes.access_token}`
-        },
-        body: JSON.stringify(updateData)
-      });
-      
-      if (!profileUpdateRes.ok) {
-        throw new Error("Failed to update profile details");
-      }
+      // Update profile details using the API client
+      await api.updateProfile(updateData, tokenRes.access_token);
 
       router.push("/dashboard");
     } catch (err: any) {
