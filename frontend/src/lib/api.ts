@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://diyablo-interview_model.hf.space/api/v1";
+const API_BASE_URL = "https://interview-model-backend.vercel.app/api/v1";
 
 interface FetchOptions {
   method?: string;
