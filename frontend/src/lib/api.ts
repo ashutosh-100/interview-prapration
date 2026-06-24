@@ -1,8 +1,8 @@
-const API_BASE_URL = "https://interview-model-backend.vercel.app/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
 interface FetchOptions {
   method?: string;
-  body?: any;
+  body?: Record<string, unknown> | FormData;
   headers?: Record<string, string>;
   token?: string | null;
 }
@@ -50,12 +50,20 @@ async function request(
       console.log("Response:", errorData);
       console.log("===============================");
 
-      throw new Error(JSON.stringify(errorData, null, 2));
+      let errorMsg = "API Request failed";
+      if (errorData.detail) {
+        errorMsg = typeof errorData.detail === 'string' ? errorData.detail : JSON.stringify(errorData.detail);
+      } else if (errorData.message) {
+        errorMsg = errorData.message;
+      } else if (Object.keys(errorData).length > 0) {
+        errorMsg = JSON.stringify(errorData);
+      }
+
+      throw new Error(errorMsg);
     }
 
     return await res.json();
-  } catch (error: any) {
-    console.error(`API Error on ${method} ${endpoint}:`, error);
+  } catch (error: unknown) {
     throw error;
   }
 }
@@ -78,7 +86,7 @@ export const api = {
     return res.json();
   },
 
-  async signup(data: any) {
+  async signup(data: Record<string, string>) {
     return request("/auth/signup", {
       method: "POST",
       body: {
@@ -92,7 +100,7 @@ export const api = {
     return request("/auth/profile", { token });
   },
 
-  async updateProfile(profileData: any, token: string) {
+  async updateProfile(profileData: Record<string, unknown>, token: string) {
     return request("/auth/profile", {
       method: "PUT",
       body: profileData,
@@ -108,7 +116,7 @@ export const api = {
     return request("/resumes/latest", { token });
   },
 
-  async startInterview(data: any, token: string) {
+  async startInterview(data: Record<string, unknown>, token: string) {
     return request("/interviews/", { method: "POST", body: data, token });
   },
 
@@ -124,7 +132,7 @@ export const api = {
     return request(`/interviews/${id}/next-question`, { method: "POST", token });
   },
 
-  async submitResponse(id: string, data: any, token: string, qKey?: string, lang?: string) {
+  async submitResponse(id: string, data: Record<string, unknown>, token: string, qKey?: string, lang?: string) {
     let url = `/interviews/${id}/submit-response`;
     const params = [];
     if (qKey) params.push(`coding_q_key=${qKey}`);

@@ -79,6 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedToken = localStorage.getItem("token");
     const savedRole = localStorage.getItem("role");
     if (savedToken && savedRole) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setToken(savedToken);
       setRole(savedRole);
     }
@@ -87,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fetch profile whenever token changes
   useEffect(() => {
     if (token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchProfile();
     } else {
       setProfile(null);

@@ -8,6 +8,6 @@ export async function generateStaticParams() {
   ];
 }
 
-export default function Page({ params }: { params: { id: string } }) {
-  return <InterviewRoom id={params.id} />;
+export default function Page() {
+  return <InterviewRoom />;
 }

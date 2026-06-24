@@ -247,14 +247,14 @@ export default function Login() {
                     <label className={labelClass}>Full Name</label>
                     <InputWrapper>
                       <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                      <input type="text" required value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Jane Doe" className={inputClass} />
+                      <input type="text" required value={fullName} onChange={e => setFullName(e.target.value)} placeholder="ashutosh " className={inputClass} />
                     </InputWrapper>
                   </div>
                   <div>
                     <label className={labelClass}>Email</label>
                     <InputWrapper>
                       <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                      <input type="email" required value={signupEmail} onChange={e => setSignupEmail(e.target.value)} placeholder="jane@company.com" className={inputClass} />
+                      <input type="email" required value={signupEmail} onChange={e => setSignupEmail(e.target.value)} placeholder="ashutosh@company.com" className={inputClass} />
                     </InputWrapper>
                   </div>
                 </div>
@@ -282,7 +282,7 @@ export default function Login() {
                     <label className={labelClass}>College</label>
                     <InputWrapper>
                       <GraduationCap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                      <input type="text" value={college} onChange={e => setCollege(e.target.value)} placeholder="Bahra university " className={inputClass} />
+                      <input type="text" value={college} onChange={e => setCollege(e.target.value)} placeholder="bahra University " className={inputClass} />
                     </InputWrapper>
                   </div>
                   <div>
