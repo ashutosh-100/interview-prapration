@@ -139,6 +139,7 @@ app.add_middleware(
         "https://interview-prapration-klbn.vercel.app",
         "https://interview-prapration.vercel.app",
     ],
+    allow_origin_regex=r"https://interview-prapration.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
