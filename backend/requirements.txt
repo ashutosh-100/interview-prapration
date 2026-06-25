@@ -5,7 +5,7 @@ gunicorn
 python-multipart
 pypdf
 sqlalchemy
-passlib[bcrypt]
+bcrypt
 python-jose[cryptography]
 pydantic
 pydantic-settings
