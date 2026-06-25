@@ -136,6 +136,8 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "https://interview-prapration-1qbb.vercel.app",
         "https://interview-prapration-nine.vercel.app",
+        "https://interview-prapration-klbn.vercel.app",
+        "https://interview-prapration.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
