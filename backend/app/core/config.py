@@ -24,8 +24,6 @@ class Settings:
 
 settings = Settings()
 
-settings = Settings()
-
 # Create upload folders only when possible
 try:
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)

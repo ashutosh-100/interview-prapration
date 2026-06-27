@@ -12,3 +12,4 @@ pydantic-settings
 email-validator
 google-generativeai
 psycopg2-binary
+python-dotenv
