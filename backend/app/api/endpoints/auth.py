@@ -9,17 +9,13 @@ from app.api.deps import get_current_user
 
 router = APIRouter()
 
-# @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-# def signup(user_in: UserCreate, db: Session = Depends(get_db)):
-#     # Check if user already exists
-#     existing_user = db.query(User).filter(User.email == user_in.email).first()
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def signup(user_in: UserCreate, db: Session = Depends(get_db)):
     try:
-        print("STEP 1")
+        print("STEP 1: Checking existing user")
 
         existing_user = db.query(User).filter(User.email == user_in.email).first()
-        print("STEP 2")
+        print("STEP 2: Existing user check complete")
 
         if existing_user:
             raise HTTPException(
@@ -27,74 +23,48 @@ def signup(user_in: UserCreate, db: Session = Depends(get_db)):
                 detail="The user with this email already exists in the system."
             )
 
+        print("STEP 3: Creating new user")
+
+        # All regular signups get the 'user' role. Admin is seeded explicitly.
+        role = "user"
+        if user_in.email == "at9854787@gmail.com":
+            role = "admin"
+
         new_user = User(
             email=user_in.email,
             hashed_password=get_password_hash(user_in.password),
-            role="user"
+            role=role
         )
-
-        print("STEP 3")
 
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
 
-        print("STEP 4")
+        print("STEP 4: Creating user profile")
 
+        # Create Profile
+        default_name = user_in.email.split("@")[0].capitalize()
         new_profile = UserProfile(
             user_id=new_user.id,
-            full_name="Test",
+            full_name=default_name,
             preferred_language="en",
             theme="system"
         )
-
         db.add(new_profile)
         db.commit()
 
-        print("STEP 5")
+        print("STEP 5: Signup complete")
 
         return new_user
 
+    except HTTPException:
+        raise
     except Exception as e:
         print("SIGNUP ERROR:", repr(e))
         raise HTTPException(
             status_code=500,
             detail="An error occurred during signup. Please try again later."
         )
-    
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The user with this email already exists in the system."
-        )
-    
-    # All regular signups get the 'user' role. Admin is seeded explicitly.
-    role = "user"
-    if user_in.email == "at9854787@gmail.com":
-        role = "admin"
-
-    # Create User
-    new_user = User(
-        email=user_in.email,
-        hashed_password=get_password_hash(user_in.password),
-        role=role
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    
-    # Create Profile
-    default_name = user_in.email.split("@")[0].capitalize()
-    new_profile = UserProfile(
-        user_id=new_user.id,
-        full_name=default_name,
-        preferred_language="en",
-        theme="system"
-    )
-    db.add(new_profile)
-    db.commit()
-    
-    return new_user
 
 @router.post("/login", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
