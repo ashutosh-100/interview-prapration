@@ -1,13 +1,37 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.db.session import get_db
+from sqlalchemy import text
+import traceback
+import os
+from app.db.session import get_db, engine
 from app.models.models import User, UserProfile
 from app.schemas.schemas import UserCreate, UserResponse, Token, ProfileResponse, ProfileUpdate
 from app.core.security import get_password_hash, verify_password, create_access_token
 from app.api.deps import get_current_user
 
 router = APIRouter()
+
+@router.get("/health")
+def health_check():
+    """Check DB connectivity and environment"""
+    db_url = os.getenv("DATABASE_URL", "NOT SET")
+    # Mask password for safety
+    if "@" in db_url:
+        prefix = db_url.split("://")[0]
+        host_part = db_url.split("@")[1]
+        db_url_safe = f"{prefix}://***@{host_part}"
+    else:
+        db_url_safe = db_url[:30] + "..."
+    
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"FAILED: {repr(e)}"
+    
+    return {"db_url": db_url_safe, "db_status": db_status}
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def signup(user_in: UserCreate, db: Session = Depends(get_db)):
@@ -61,9 +85,10 @@ def signup(user_in: UserCreate, db: Session = Depends(get_db)):
         raise
     except Exception as e:
         print("SIGNUP ERROR:", repr(e))
+        print("SIGNUP TRACEBACK:", traceback.format_exc())
         raise HTTPException(
             status_code=500,
-            detail="An error occurred during signup. Please try again later."
+            detail=f"Signup error: {repr(e)[:200]}"
         )
 
 @router.post("/login", response_model=Token)
